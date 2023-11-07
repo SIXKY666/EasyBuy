@@ -1,0 +1,67 @@
+version: '1'
+services:
+  easybuy-backend:
+      build: ./backend/
+      image: easybuy-backend
+      container_name: easybuy-backend
+      hostname: easybuy-backend
+      ports:
+        - "3000:3000"
+      volumes:
+        - ./backend:/usr/src/app
+      restart: unless-stopped
+      stdin_open: true
+      depends_on:
+        - easybuy-maria
+      networks:
+        - easybuy-network
+
+  # easybuy-frontend:
+  #     build: ./frontend/
+  #     image: easybuy-frontend
+  #     container_name: easybuy-frontend
+  #     hostname: easybuy-frontend
+  #     ports:
+  #       - "5000:5000"
+  #     volumes:
+  #       - ./frontend:/usr/src/app
+  #       - /usr/src/app/node_modules
+  #     restart: no
+  #     networks:
+  #       - easybuy-network
+
+  easybuy-maria:
+    image: mariadb:10.5
+    container_name: easybuy-maria
+    hostname: easybuy-maria
+    ports:
+        - "14002:3306"
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ./dbs:/var/lib/mysql
+    restart: unless-stopped
+    environment:
+      - MYSQL_ROOT_PASSWORD=12345678
+    networks:
+      - easybuy-network
+  
+  easybuy-pma:
+    image: phpmyadmin/phpmyadmin
+    container_name: easybuy-pma
+    hostname: easybuy-pma
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+    ports:
+      - 127.0.0.1:14003:80
+    environment:
+      - PMA_ARBITRARY=1
+      - PMA_HOST=easybuy-maria
+    restart: unless-stopped
+    links:
+      - easybuy-maria
+    networks:
+      - easybuy-network
+
+networks:
+  easybuy-network:
+    driver: bridge
