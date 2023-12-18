@@ -1,6 +1,11 @@
 #root {
-  width: 100vw;
+  width: 100%;
   min-height: 100vh;
+  height: 100%;
   margin: 0 auto;
   text-align: center;
 }
+/* 
+html,body{
+  width: 100v;
+} */

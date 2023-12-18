@@ -1,5 +1,5 @@
 #### Build App
-FROM node:16
+FROM node:18-bullseye-slim AS build
 
 # Install required apps
 RUN apt-get update && \

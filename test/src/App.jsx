@@ -1,9 +1,10 @@
 import './App.css'
-import { io } from 'socket.io-client'
-import { useEffect, useState } from 'react'
-const socket = io('http://localhost:3000')
+import { useContext, useEffect, useState } from 'react'
+import { SocketContext } from './context/SocketContext';
 
 function App() {
+  const socket = useContext(SocketContext);
+  
   const rooms = [
     { value: 'room1', name: 'Room 1' },
     { value: 'room2', name: 'Room 2' },
@@ -14,18 +15,21 @@ function App() {
   const [room, setRoom] = useState('room1');
 
   useEffect(() => {
-    socket.emit("join", (room) => {
-      socket.join(room);
-    });
+    socket.emit("join_room", room)
 
     socket.on('new-message', (message) => {
-      setMessages([...messages, message])
+      console.log("incoming-message", message);
+      // setMessages([...messages, message])
     })
+
+    return () => {
+      socket.off('new-message')
+    }
   }, [messages,room])
 
   const sendMessage = () => {
     if (message) {
-      socket.emit('sent-message', message);
+      socket.emit('sent-message', { message, room });
       setMessage('');
       document.getElementById('input-field').value = '';
     }
@@ -48,11 +52,11 @@ function App() {
             </select>
         </div>
         <div className="chat-messages">
-          {messages.map((message, index) => (
+          {/* {messages.map((message, index) => (
             <div key={index} className='message'>
               <p>{message}</p>
             </div>
-          ))}
+          ))} */}
         </div>
         <div className="chat-input">
           <input type="text" placeholder="Send Message" id="input-field" onChange={(e) => setMessage(e.target.value)} />

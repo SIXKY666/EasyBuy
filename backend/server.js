@@ -39,45 +39,44 @@ const io = socketIo(server,{
   }
 });
 
-// io.on('connection', client => {
-//   const sessionID = client.id;
-//   console.log(`user:${sessionID} has connected`)
+io.on('connection', client => {
+  const sessionID = client.id;
+  console.log(`user:${sessionID} has connected`)
 
-//   client.on('disconnect', () => {
-//     console.log('user disconnected')
-//   })
+  client.on('disconnect', () => {
+    console.log('user disconnected')
+  })
 
-//   client.on("join_room", (roomName) => {
-//     console.log(`${sessionID} joined ${roomName}`);
-//     client.join(roomName);
+  client.on("join_room", (roomName) => {
+    console.log(`${sessionID} joined ${roomName}`);
+    client.join(roomName);
+  });
+
+  client.on('sent-message', function (message) {
+    console.log(`${sessionID} sent: ${message}`);
+    io.sockets.to(message.room).emit("new-message", {message: message.message,senderId:sessionID});
+  })
+})
+
+// io.on('connection', (socket) => {
+//   console.log('a user connected');
+
+//   socket.on("join_room", (roomName) => {
+//     console.log(`user joined ${roomName}`);
+//     socket.join(roomName);
 //   });
 
-//   client.on('sent-message', function (message) {
-//     console.log(`${sessionID} sent: ${message}`);
-//     io.sockets.to(message.room).emit("new-message", message);
-//     // io.sockets.emit('new-message', message)
-//   })
-// })
+//   socket.on('new-product', (update) => {
+//     console.log('new-product', update.name);
+//     console.log("update on room", update.room);
+//     io.to(update.room).emit('product-list', { status: true });
+//     // io.emit('product-list', { status: true });
+//   });
 
-io.on('connection', (socket) => {
-  console.log('a user connected');
-
-  socket.on("join_room", (roomName) => {
-    console.log(`user joined ${roomName}`);
-    socket.join(roomName);
-  });
-
-  socket.on('new-product', (update) => {
-    console.log('new-product', update.name);
-    console.log("update on room", update.room);
-    io.to(update.room).emit('product-list', { status: true });
-    // io.emit('product-list', { status: true });
-  });
-
-  socket.on('disconnect', () => {
-    console.log('user disconnected');
-  });
-});
+//   socket.on('disconnect', () => {
+//     console.log('user disconnected');
+//   });
+// });
 server.listen(process.env.PORT, () => {
   console.log("SERVER IS RUNNING ON", process.env.PORT);
 });
